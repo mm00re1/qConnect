@@ -378,9 +378,9 @@ def qtable(columns, data, **meta):
         
         if isinstance(data[i], str):
             # convert character list (represented as string) to numpy representation
-            data[i] = numpy.array(list(data[i]), dtype = numpy.string_)
+            data[i] = numpy.array(list(data[i]), dtype = numpy.bytes_)
         if isinstance(data[i], bytes):
-            data[i] = numpy.array(list(data[i].decode()), dtype = numpy.string_)
+            data[i] = numpy.array(list(data[i].decode()), dtype = numpy.bytes_)
 
         if column_name in meta:
             data[i] = qlist(data[i], qtype = meta[column_name])

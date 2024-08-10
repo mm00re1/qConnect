@@ -12,13 +12,14 @@ qPython is a Python library providing support for interprocess communication bet
 
 For more details please refer to the `documentation`_.
 
+Note: This is a forked version of qpython to add new features since "qpython3" by finos is in maintenance mode
 
 Installation
 ------------
 
 To install qPython from PyPI:
 
-``$ pip install qpython3``
+``$ pip install qconnect``
 
 **Please do not use old PyPI package name: qpython or exxeleron-qpython.**
 

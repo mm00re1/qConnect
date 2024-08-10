@@ -173,7 +173,7 @@ class QConnection(object):
             self._connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             if self.tls_enabled:
-                self._connection = context.wrap_socket(self._connection,server_hostname = self.host)
+                self._connection = self.context.wrap_socket(self._connection,server_hostname = self.host)
 
             self._connection.settimeout(self.timeout)
             self._connection.connect((self.host, self.port))

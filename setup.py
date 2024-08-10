@@ -14,7 +14,7 @@
 #  limitations under the License.
 #
 
-from distutils.core import setup
+from setuptools import setup, find_packages
 from qpython import __version__
 
 import os
@@ -34,7 +34,10 @@ else:
     use_cython = True
 
 if use_cython:
-    ext_modules = cythonize('qpython/fastutils.pyx')
+    ext_modules = cythonize(
+        'qpython/fastutils.pyx',
+        compiler_directives={'language_level': '3'}  # Python 3 syntax
+    )
 else:
     ext_modules = []
 
@@ -44,14 +47,14 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-setup(name = 'qPython3',
+setup(name = 'qConnect',
       version = __version__,
       description = 'kdb+ interfacing library for Python',
       long_description=read('README.rst'),
 
-      author = 'finos',
-      author_email = 'data-tech-kdb@finos.org',
-      url = 'https://github.com/finos/qPython',
+      author = 'mm00re1',
+      author_email = 'mauricemoore100@gmail.com',
+      url = 'https://github.com/mm00re1/qConnect',
       license = 'Apache License Version 2.0',
 
       ext_modules = ext_modules,

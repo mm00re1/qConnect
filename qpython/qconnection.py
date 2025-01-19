@@ -22,6 +22,7 @@ from qpython import MetaData, CONVERSION_OPTIONS
 from qpython.qtype import QException
 from qpython.qreader import QReader, QReaderException
 from qpython.qwriter import QWriter, QWriterException
+from qpython.oauth import retrieve_tokens_AZURE_pkce, retrieve_tokens_AZURE_client_credentials
 
 class QConnectionException(Exception):
     '''Raised when a connection to the q service cannot be established.'''
@@ -77,11 +78,39 @@ class QConnection(object):
 
     MAX_PROTOCOL_VERSION = 6
 
-    def __init__(self, host, port, username = None, password = None, timeout = None, tls_enabled = True ,encoding = 'latin-1', reader_class = None, writer_class = None, custom_ca = None, **options):
+    def __init__(self,
+                 host,
+                 port,
+                 username=None,
+                 password=None,
+                 timeout = None,
+                 oauth_provider=None,
+                 oauth_config=None,
+                 tls_enabled=True,
+                 encoding='latin-1',
+                 reader_class = None,
+                 writer_class = None,
+                 custom_ca=None,
+                 **options):
+        """
+        :param oauth_provider: One of ['azure', ....], or None
+        :param oauth_config: A dict or custom object with keys like:
+                            {
+                              "tenant_id": "...",
+                              "client_id": "...",
+                              "client_secret": "...",  # if you are using "client_credentials" flow
+                              "scope": "api://xyz/.read_data",
+                              "flow": "pkce" or "client_credentials",
+                              "redirect_port": xxxx # optional in pkce if you prefer to not use port 5000 for the temporary server
+                            }
+        """
         self.host = host
         self.port = port
         self.username = username
         self.password = password
+        self.oauth_provider = oauth_provider
+        self.oauth_config = oauth_config or {}
+        self.tokens = {}
         self.tls_enabled = tls_enabled
         self.custom_ca = custom_ca
 
@@ -160,6 +189,28 @@ class QConnection(object):
             if not self.host:
                 raise QConnectionException('Host cannot be None')
 
+            if self.oauth_provider == 'azure':
+                flow = self.oauth_config.get("flow", "client_credentials")
+                if flow == "pkce":
+                    self.tokens = retrieve_tokens_AZURE_pkce(TENANT_ID = self.oauth_config.get("tenant_id", ""),
+                                                        CLIENT_ID = self.oauth_config.get("client_id", ""),
+                                                        KDB_SCOPE = self.oauth_config.get("scope", ""),
+                                                        tokens = self.tokens,
+                                                        REDIRECT_PORT = self.oauth_config.get("redirect_port", 5000))
+                    self._effective_password = self.tokens["access_token"]
+                elif flow == "client_credentials":
+                    self.tokens = retrieve_tokens_AZURE_client_credentials(TENANT_ID = self.oauth_config.get("tenant_id", ""),
+                                                        CLIENT_ID = self.oauth_config.get("client_id", ""),
+                                                        CLIENT_SECRET = self.oauth_config.get("client_secret", ""),
+                                                        KDB_SCOPE = self.oauth_config.get("scope", ""),
+                                                        tokens = self.tokens)
+                    self._effective_password = self.tokens["access_token"]
+                else:
+                    raise Exception(f"Unknown OAuth flow: {flow}")
+            else:
+                # Basic Auth / or no auth
+                self._effective_password = self.password
+
             self._init_socket()
             self._initialize()
 
@@ -208,7 +259,7 @@ class QConnection(object):
 
     def _initialize(self):
         '''Performs a IPC protocol handshake.'''
-        credentials = (self.username if self.username else '') + ':' + (self.password if self.password else '')
+        credentials = (self.username if self.username else '') + ':' + (self._effective_password if self._effective_password else '')
         credentials = credentials.encode(self._encoding)
         self._connection.send(credentials + bytes([self.MAX_PROTOCOL_VERSION, 0]))
         response = self._connection.recv(1)

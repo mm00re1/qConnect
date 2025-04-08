@@ -15,7 +15,7 @@
 #
 
 from setuptools import setup, find_packages
-from qpython import __version__
+from qconnect import __version__
 
 import os
 
@@ -35,7 +35,7 @@ else:
 
 if use_cython:
     ext_modules = cythonize(
-        'qpython/fastutils.pyx',
+        'qconnect/fastutils.pyx',
         compiler_directives={'language_level': '3'}  # Python 3 syntax
     )
 else:
@@ -84,7 +84,7 @@ setup(name = 'qConnect',
           'Topic :: Scientific/Engineering',
           'Topic :: Software Development',
           ],
-      packages = ['qpython'],
-      package_data = {'qpython': ['fastutils.pyx']},
+      packages = ['qconnect'],
+      package_data = {'qconnect': ['fastutils.pyx']},
       data_files = [('', ['LICENSE', 'CHANGELOG.txt', 'README.rst', 'requirements.txt'])]
      )

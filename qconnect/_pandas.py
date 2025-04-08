@@ -22,11 +22,11 @@ if sys.version > '3':
 
 from collections import OrderedDict
 
-from qpython import MetaData
-from qpython.qreader import QReader, QReaderException
-from qpython.qcollection import QDictionary, qlist
-from qpython.qwriter import QWriter, QWriterException
-from qpython.qtype import *
+from qconnect import MetaData
+from qconnect.qreader import QReader, QReaderException
+from qconnect.qcollection import QDictionary, qlist
+from qconnect.qwriter import QWriter, QWriterException
+from qconnect.qtype import *
 
 
 

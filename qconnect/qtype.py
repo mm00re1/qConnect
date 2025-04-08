@@ -15,7 +15,7 @@
 # 
 
 '''
-The `qpython.qtype` module defines number of utility function which help to work
+The `qconnect.qtype` module defines number of utility function which help to work
 with types mapping between q and Python.
 
 This module declares supported q types as constants, which can be used along

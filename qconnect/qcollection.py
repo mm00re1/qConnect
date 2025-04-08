@@ -14,9 +14,9 @@
 #  limitations under the License.
 #
 
-from qpython.qtype import *  # @UnusedWildImport
-from qpython import MetaData
-from qpython.qtemporal import qtemporal, QTemporal, from_raw_qtemporal, to_raw_qtemporal
+from qconnect.qtype import *  # @UnusedWildImport
+from qconnect import MetaData
+from qconnect.qtemporal import qtemporal, QTemporal, from_raw_qtemporal, to_raw_qtemporal
 
 
 class QList(numpy.ndarray):
@@ -121,8 +121,8 @@ def qlist(array, adjust_dtype = True, **meta):
     :func:`.get_list_qtype` doesn't match one provided as a `qtype` parameter 
     guessed q type, underlying numpy.array is converted to correct data type.
     
-    `qPython` internally represents ``(0x01;0x02;0xff)`` q list as:
-    ``<class 'qpython.qcollection.QList'> dtype: int8 qtype: -4: [ 1  2 -1]``.
+    `qconnect` internally represents ``(0x01;0x02;0xff)`` q list as:
+    ``<class 'qconnect.qcollection.QList'> dtype: int8 qtype: -4: [ 1  2 -1]``.
     This object can be created by calling the :func:`.qlist` with following 
     arguments:
     
@@ -130,31 +130,31 @@ def qlist(array, adjust_dtype = True, **meta):
        
        >>> v = qlist(numpy.array([0x01, 0x02, 0xff], dtype=numpy.byte))
        >>> print('%s dtype: %s qtype: %d: %s' % (type(v), v.dtype, v.meta.qtype, v))
-       <class 'qpython.qcollection.QList'> dtype: int8 qtype: -4: [ 1  2 -1]
+       <class 'qconnect.qcollection.QList'> dtype: int8 qtype: -4: [ 1  2 -1]
     
     - `int32 numpy.array` with explicit conversion to `QBYTE_LIST`:   
       
        >>> v = qlist(numpy.array([1, 2, -1]), qtype = QBYTE_LIST)
        >>> print('%s dtype: %s qtype: %d: %s' % (type(v), v.dtype, v.meta.qtype, v))
-       <class 'qpython.qcollection.QList'> dtype: int8 qtype: -4: [ 1  2 -1]
+       <class 'qconnect.qcollection.QList'> dtype: int8 qtype: -4: [ 1  2 -1]
     
     - plain Python `integer` list with explicit conversion to `QBYTE_LIST`:   
        
        >>> v = qlist([1, 2, -1], qtype = QBYTE_LIST)
        >>> print('%s dtype: %s qtype: %d: %s' % (type(v), v.dtype, v.meta.qtype, v))
-       <class 'qpython.qcollection.QList'> dtype: int8 qtype: -4: [ 1  2 -1]
+       <class 'qconnect.qcollection.QList'> dtype: int8 qtype: -4: [ 1  2 -1]
 
     - numpy datetime64 array with implicit conversion to `QDATE_LIST`:   
        
        >>> v = qlist(numpy.array([numpy.datetime64('2001-01-01'), numpy.datetime64('2000-05-01'), numpy.datetime64('NaT')], dtype='datetime64[D]'))
        >>> print('%s dtype: %s qtype: %d: %s' % (type(v), v.dtype, v.meta.qtype, v))
-       <class 'qpython.qcollection.QList'> dtype: datetime64[D] qtype: -14: ['2001-01-01' '2000-05-01' 'NaT']
+       <class 'qconnect.qcollection.QList'> dtype: datetime64[D] qtype: -14: ['2001-01-01' '2000-05-01' 'NaT']
        
     - numpy datetime64 array with explicit conversion to `QDATE_LIST`:   
        
        >>> v = qlist(numpy.array([numpy.datetime64('2001-01-01'), numpy.datetime64('2000-05-01'), numpy.datetime64('NaT')], dtype='datetime64[D]'), qtype = QDATE_LIST)
        >>> print('%s dtype: %s qtype: %d: %s' % (type(v), v.dtype, v.meta.qtype, v))
-       <class 'qpython.qcollection.QList'> dtype: datetime64[D] qtype: -14: ['2001-01-01' '2000-05-01' 'NaT']
+       <class 'qconnect.qcollection.QList'> dtype: datetime64[D] qtype: -14: ['2001-01-01' '2000-05-01' 'NaT']
 
     
     :Parameters:
@@ -329,14 +329,14 @@ def qtable(columns, data, **meta):
       ...     [qlist(numpy.array(['Dent', 'Beeblebrox', 'Prefect'])), 
       ...      qlist(numpy.array([98, 42, 126], dtype=numpy.int64))])
       >>> print('%s dtype: %s meta: %s: %s' % (type(t), t.dtype, t.meta, t))
-      <class 'qpython.qcollection.QTable'> dtype: [('name', 'S10'), ('iq', '<i8')] meta: metadata(iq=-7, qtype=98, name=-11): [('Dent', 98L) ('Beeblebrox', 42L) ('Prefect', 126L)]
+      <class 'qconnect.qcollection.QTable'> dtype: [('name', 'S10'), ('iq', '<i8')] meta: metadata(iq=-7, qtype=98, name=-11): [('Dent', 98L) ('Beeblebrox', 42L) ('Prefect', 126L)]
       
       >>> # q: flip `name`iq!(`Dent`Beeblebrox`Prefect;98 42 126)
       >>> t = qtable(qlist(numpy.array(['name', 'iq']), qtype = QSYMBOL_LIST),
       ...           [qlist(['Dent', 'Beeblebrox', 'Prefect'], qtype = QSYMBOL_LIST), 
       ...            qlist([98, 42, 126], qtype = QLONG_LIST)])
       >>> print('%s dtype: %s meta: %s: %s' % (type(t), t.dtype, t.meta, t))
-      <class 'qpython.qcollection.QTable'> dtype: [('name', 'S10'), ('iq', '<i8')] meta: metadata(iq=-7, qtype=98, name=-11): [('Dent', 98L) ('Beeblebrox', 42L) ('Prefect', 126L)]
+      <class 'qconnect.qcollection.QTable'> dtype: [('name', 'S10'), ('iq', '<i8')] meta: metadata(iq=-7, qtype=98, name=-11): [('Dent', 98L) ('Beeblebrox', 42L) ('Prefect', 126L)]
       
       >>> # q: flip `name`iq!(`Dent`Beeblebrox`Prefect;98 42 126)
       >>> t = qtable(['name', 'iq'],
@@ -344,14 +344,14 @@ def qtable(columns, data, **meta):
       ...             [98, 42, 126]],
       ...            name = QSYMBOL, iq = QLONG)
       >>> print('%s dtype: %s meta: %s: %s' % (type(t), t.dtype, t.meta, t)) 
-      <class 'qpython.qcollection.QTable'> dtype: [('name', 'S10'), ('iq', '<i8')] meta: metadata(iq=-7, qtype=98, name=-11): [('Dent', 98L) ('Beeblebrox', 42L) ('Prefect', 126L)]
+      <class 'qconnect.qcollection.QTable'> dtype: [('name', 'S10'), ('iq', '<i8')] meta: metadata(iq=-7, qtype=98, name=-11): [('Dent', 98L) ('Beeblebrox', 42L) ('Prefect', 126L)]
       
       >>> # q: flip `name`iq`fullname!(`Dent`Beeblebrox`Prefect;98 42 126;("Arthur Dent"; "Zaphod Beeblebrox"; "Ford Prefect"))
       >>> t = qtable(('name', 'iq', 'fullname'),
       ...            [qlist(numpy.array(['Dent', 'Beeblebrox', 'Prefect']), qtype = QSYMBOL_LIST), 
       ...             qlist(numpy.array([98, 42, 126]), qtype = QLONG_LIST),
       ...             qlist(numpy.array(["Arthur Dent", "Zaphod Beeblebrox", "Ford Prefect"]), qtype = QSTRING_LIST)])
-      <class 'qpython.qcollection.QTable'> dtype: [('name', 'S10'), ('iq', '<i8'), ('fullname', 'O')] meta: metadata(iq=-7, fullname=0, qtype=98, name=-11): [('Dent', 98L, 'Arthur Dent') ('Beeblebrox', 42L, 'Zaphod Beeblebrox') ('Prefect', 126L, 'Ford Prefect')]
+      <class 'qconnect.qcollection.QTable'> dtype: [('name', 'S10'), ('iq', '<i8'), ('fullname', 'O')] meta: metadata(iq=-7, fullname=0, qtype=98, name=-11): [('Dent', 98L, 'Arthur Dent') ('Beeblebrox', 42L, 'Zaphod Beeblebrox') ('Prefect', 126L, 'Ford Prefect')]
     
     :Parameters:
      - `columns` (list of `strings`) - table column names 
@@ -419,9 +419,9 @@ class QKeyedTable(object):
         >>> print('%s: %s' % (type(t), t))
         >>> print('%s dtype: %s meta: %s' % (type(t.keys), t.keys.dtype, t.keys.meta))
         >>> print('%s dtype: %s meta: %s' % (type(t.values), t.values.dtype, t.values.meta))
-        <class 'qpython.qcollection.QKeyedTable'>: [(1001L,) (1002L,) (1003L,)]![('d1', 366) ('d2', 121) ('d3', -2147483648)]
-        <class 'qpython.qcollection.QTable'> dtype: [('eid', '<i8')] meta: metadata(qtype=98, eid=-7)
-        <class 'qpython.qcollection.QTable'> dtype: [('pos', 'S2'), ('dates', '<i4')] meta: metadata(dates=-14, qtype=98, pos=-11)
+        <class 'qconnect.qcollection.QKeyedTable'>: [(1001L,) (1002L,) (1003L,)]![('d1', 366) ('d2', 121) ('d3', -2147483648)]
+        <class 'qconnect.qcollection.QTable'> dtype: [('eid', '<i8')] meta: metadata(qtype=98, eid=-7)
+        <class 'qconnect.qcollection.QTable'> dtype: [('pos', 'S2'), ('dates', '<i4')] meta: metadata(dates=-14, qtype=98, pos=-11)
     
     :Parameters:
      - `keys` (`QTable`) - table keys

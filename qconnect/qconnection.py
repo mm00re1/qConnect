@@ -17,12 +17,13 @@
 import socket
 import struct
 import ssl
+import json
 
-from qpython import MetaData, CONVERSION_OPTIONS
-from qpython.qtype import QException
-from qpython.qreader import QReader, QReaderException
-from qpython.qwriter import QWriter, QWriterException
-from qpython.oauth import retrieve_tokens_AZURE_pkce, retrieve_tokens_AZURE_client_credentials
+from qconnect import MetaData, CONVERSION_OPTIONS
+from qconnect.qtype import QException
+from qconnect.qreader import QReader, QReaderException
+from qconnect.qwriter import QWriter, QWriterException
+from qconnect.oauth import retrieve_tokens_AZURE_pkce, retrieve_tokens_AZURE_client_credentials
 
 class QConnectionException(Exception):
     '''Raised when a connection to the q service cannot be established.'''
@@ -125,7 +126,7 @@ class QConnection(object):
         self._options = MetaData(**CONVERSION_OPTIONS.union_dict(**options))
 
         try:
-            from qpython._pandas import PandasQReader, PandasQWriter
+            from qconnect._pandas import PandasQReader, PandasQWriter
             self._reader_class = PandasQReader
             self._writer_class = PandasQWriter
         except ImportError:
@@ -297,7 +298,7 @@ class QConnection(object):
             >>> q.query(qconnection.MessageType.SYNC,'til 10')
         
         :Parameters:
-         - `msg_type` (one of the constants defined in :class:`.MessageType`) - 
+         - `msg_type` (one of the constants defined in :class:`.MessageType`) -
            type of the query to be executed
          - `query` (`string`) - query to be executed
          - `parameters` (`list` or `None`) - parameters for the query
@@ -314,10 +315,18 @@ class QConnection(object):
         if parameters and len(parameters) > 8:
             raise QWriterException('Too many parameters.')
 
+        # Convert any dictionary parameters to JSON strings
+        processed_params = []
+        for param in parameters:
+            if isinstance(param, dict):
+                processed_params.append(json.dumps(param))
+            else:
+                processed_params.append(param)
+
         if not parameters or len(parameters) == 0:
             self._writer.write(query, msg_type, **self._options.union_dict(**options))
         else:
-            self._writer.write([query] + list(parameters), msg_type, **self._options.union_dict(**options))
+            self._writer.write([query] + processed_params, msg_type, **self._options.union_dict(**options))
 
 
     def sendSync(self, query, *parameters, **options):
@@ -380,7 +389,7 @@ class QConnection(object):
         if response.type == MessageType.RESPONSE:
             return response.data
         else:
-            self._writer.write(QException('nyi: qPython expected response message'), MessageType.ASYNC if response.type == MessageType.ASYNC else MessageType.RESPONSE)
+            self._writer.write(QException('nyi: qconnect expected response message'), MessageType.ASYNC if response.type == MessageType.ASYNC else MessageType.RESPONSE)
             raise QReaderException('Received message of type: %s where response was expected')
 
 
